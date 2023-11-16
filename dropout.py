@@ -13,9 +13,9 @@ y = pd.read_csv('saidas_breast.csv')
 def getModel():
     nn = Sequential()
     nn.add(Dense(units=16, activation='relu', kernel_initializer='random_uniform', input_dim=30))
-    nn.add(Dropout(0.1))
+    nn.add(Dropout(0.2))
     nn.add(Dense(units=16, activation='relu', kernel_initializer='random_uniform'))
-    nn.add(Dropout(0.1))
+    nn.add(Dropout(0.2))
     nn.add(Dense(units=1, activation='sigmoid'))
     
     lr = keras.optimizers.schedules.ExponentialDecay(0.001, 10000, 0.0001)
