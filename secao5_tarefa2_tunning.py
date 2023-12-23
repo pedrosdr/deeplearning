@@ -64,6 +64,35 @@ search.fit(x, y_dummy)
 print(search.best_score_)
 print(search.best_params_)
 
-best_estimator = search.best_estimator_
+
+## Creating best model
+best_model = getModel(
+    n_hidden=3,
+    initializer='uniform',
+    dropout=False,
+    batch_norm=True,
+    activation='elu',
+    optimizer = keras.optimizers.Adam(lr)
+)
+
+best_estimator = KerasClassifier(model=best_model, batch_size=300, epochs=1000);
+
 results = cross_val_score(best_estimator, x, y_dummy, cv=5)
 print(results.mean())
+
+
+# Saving Classifier
+best_model.fit(x, y_dummy, batch_size=300, epochs=1000)
+open('5_iris_clf.json', 'w').write(best_model.to_json())
+best_model.save_weights('5_iris_clf.h5')
+
+# Loading Classifier
+loaded_clf: Sequential = keras.models.model_from_json(open('5_iris_clf.json', 'r').read())
+loaded_clf.load_weights('5_iris_clf.h5')
+
+# Predictions
+clf_result = loaded_clf.predict(np.array([2.3, 4.5, 7.8, 3.2]).reshape((1,4)))
+
+
+
+
