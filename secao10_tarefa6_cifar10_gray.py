@@ -13,15 +13,14 @@ ytrain = to_categorical(ytrain.astype(np.float32))
 xtest = xtest.astype(np.float32)
 ytest = to_categorical(ytest.astype(np.float32))
 
-# Plotando a imagem
-xt = xtrain
-# xt = xtrain.mean(axis=3, keepdims=False)
-xt = 0.299 * xt[:,:,:,0] + 0.587 * xt[:,:,:,1] + 0.114 * xt[:,:,:,2]
-plt.imshow(xt[1011], cmap='gray')
+xtrain = 0.299 * xtrain[:,:,:,0] + 0.587 * xtrain[:,:,:,1] + 0.114 * xtrain[:,:,:,2]
+xtest = 0.299 * xtest[:,:,:,0] + 0.587 * xtest[:,:,:,1] + 0.114 * xtest[:,:,:,2]
+xtrain = xtrain.reshape(xtrain.shape[0],xtrain.shape[1],xtrain.shape[2],1)
+xtest = xtest.reshape(xtest.shape[0],xtest.shape[1],xtest.shape[2],1)
 
 # Estrutura da rede neural
 model = Sequential()
-model.add(Conv2D(32, (3,3), input_shape=(32,32,3), activation='relu'))
+model.add(Conv2D(32, (3,3), input_shape=(32,32,1), activation='relu'))
 model.add(BatchNormalization())
 
 model.add(MaxPool2D())
@@ -43,7 +42,7 @@ model.add(Dense(10, activation='softmax'))
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics='accuracy')
 
 # Treinando o modelo
-model.fit(xtrain, ytrain, batch_size=128, epochs=50, validation_data=(xtest, ytest))
+model.fit(xtrain, ytrain, batch_size=128, epochs=10, validation_data=(xtest, ytest))
 
 # Fazendo as previsões
 y_new = model.predict(xtest)
