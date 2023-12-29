@@ -75,8 +75,11 @@ from sklearn.model_selection import cross_val_score, train_test_split
 from scikeras.wrappers import KerasRegressor
 
 # Criando a função customizada (leaking relu)
+# def custom_function(x):
+#     return K.switch(x >= 2, x, 2 * K.pow(1.5, x - 2))
+
 def custom_function(x):
-    return K.switch(x < 0, x * 0.05, x)
+    return K.switch(x >= 1, x, K.pow(1.03, x - 1) + K.pow(2.2, x - 1) - 1)
 
 # Montando a rede neural
 def getModel():
@@ -99,7 +102,7 @@ def getModel():
     return model
 
 # Criando um regressor sklearn
-reg = KerasRegressor(model=getModel, batch_size=6000, epochs=5000)
+reg = KerasRegressor(model=getModel, batch_size=6000, epochs=1000)
 
 # Fazendo a cross validation
 results = cross_val_score(reg, x, y, cv=5, scoring='neg_mean_absolute_error')
@@ -108,6 +111,6 @@ results = cross_val_score(reg, x, y, cv=5, scoring='neg_mean_absolute_error')
 xtrain, xtest, ytrain, ytest = train_test_split(x, y, test_size=0.2)
 
 model = getModel()
-model.fit(xtrain, ytrain, batch_size=6000, epochs=5000)
+model.fit(xtrain, ytrain, batch_size=6000, epochs=1000)
 y_new = model.predict(xtest)
 print(r2_score(ytest, y_new))
