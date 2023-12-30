@@ -43,7 +43,7 @@ model.add(Dense(10, activation='softmax'))
 
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-model.fit(xtrain, ytrain, batch_size=128, epochs=5, validation_data=(xtest, ytest))
+model.fit(xtrain, ytrain, batch_size=128, epochs=15, validation_data=(xtest, ytest))
 y_new = model.predict(xtest)
 
 y_new2 = [x.argmax() for x in y_new]
@@ -51,3 +51,8 @@ ytest2 = [x.argmax() for x in ytest]
 
 cm = confusion_matrix(ytest2, y_new2)
 plt.imshow(cm)
+
+# # Saving model
+# with open('10_mnist.json', 'w') as f:
+#     f.write(model.to_json())
+# model.save_weights('10_mnist.h5')
