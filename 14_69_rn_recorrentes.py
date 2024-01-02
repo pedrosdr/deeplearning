@@ -77,3 +77,6 @@ ytest2 = scaler_train.inverse_transform(ytest)
 # Vizualização
 plt.scatter([i for i in range(ytest2.shape[0])], ytest2[:,0])
 plt.scatter([i for i in range(y_new2.shape[0])], y_new2[:,0])
+
+plt.plot(ytest2, color = 'red')
+plt.plot(y_new2, color='blue')
