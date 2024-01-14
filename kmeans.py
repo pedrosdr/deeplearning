@@ -92,21 +92,11 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     vals_np = np.random.randint(0, 100, size=(100, 2))
     
-    kmeans = KMeans(n_iter=100, k=5)
+    kmeans = KMeans(n_iter=100, k=7)
     kmeans.fit(vals_np)
     
-    colors = []
-    for i in kmeans.classes:
-        if i == 0:
-            colors.append('red')
-        elif i == 1:
-            colors.append('blue')
-        elif i == 2:
-            colors.append('green')
-        elif i == 3:
-            colors.append('orange')
-        else:
-            colors.append('yellow')
+    colorsUnique = ['red', 'blue', 'green', 'orange', 'yellow', 'gray', '#000']
+    colors = [colorsUnique[x] for x in kmeans.classes]
     
     plt.scatter(kmeans.instances[:,0], kmeans.instances[:,1], color=colors)
     
