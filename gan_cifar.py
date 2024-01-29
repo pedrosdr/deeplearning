@@ -3,40 +3,46 @@ import numpy as np
 import matplotlib.pyplot as plt
 from keras.models import Sequential, Model
 from keras.layers import Conv2D, Dense, BatchNormalization, Dropout, UpSampling2D
-from keras.layers import Reshape, Input, MaxPool2D, Flatten
+from keras.layers import Reshape, Input, MaxPool2D, Flatten, Activation
 from keras.optimizers import Adam
+from keras.activations import relu, tanh
 from PIL import Image
 
 (x, y), (_,_) = keras.datasets.cifar10.load_data()
-x = x[y.flatten() == 0]
-x = x / 255
+x = x[y.flatten() == 7]
+x = (x / x.mean()) - 1
 
 latent_dimensions = 100
-img_shape = (32,32,3)
+img_shape = (32,32,1)
 
-# x = x[:,:,:,0] * 0.33 + x[:,:,:,1] * 0.33 + x[:,:,:,2] * 0.34 
+x = x[:,:,:,0] * 0.299 + x[:,:,:,1] * 0.587 + x[:,:,:,2] * 0.114 
+x = x.reshape(x.shape[0], x.shape[1], x.shape[2], 1)
 
-# plt.imshow(x[68], cmap='gray')
+plt.imshow(x[4], cmap='gray')
 
 def build_generator(latent_dimensions):
     model = Sequential()
     model.add(Dense(128 * 8 * 8, activation='relu', input_shape=(latent_dimensions,))) 
     model.add(Reshape((8, 8, 128)))
     
-    model.add(Conv2D(128, 3, activation='relu', padding='same'))
+    model.add(Conv2D(128, 3, padding='same'))
     model.add(BatchNormalization())
+    model.add(Activation(relu))
     
     model.add(UpSampling2D())
     
-    model.add(Conv2D(64, 3, activation='relu', padding='same'))
+    model.add(Conv2D(64, 3, padding='same'))
     model.add(BatchNormalization())
+    model.add(Activation(relu))
     
     model.add(UpSampling2D())
     
-    model.add(Conv2D(32, 3, activation='relu', padding='same'))
+    model.add(Conv2D(32, 3, padding='same'))
     model.add(BatchNormalization())
+    model.add(Activation(relu))
     
-    model.add(Conv2D(3, 3, activation='sigmoid', padding='same'))
+    model.add(Conv2D(1, 3, padding='same'))
+    model.add(Activation(tanh))
     
     z_in = Input((latent_dimensions,))
     z_out = model(z_in)
@@ -46,16 +52,19 @@ def build_generator(latent_dimensions):
 
 def build_discriminator(img_shape):
     model = Sequential()
-    model.add(Conv2D(32, 3, padding='same', activation='relu', input_shape=img_shape))
+    model.add(Conv2D(32, 3, padding='same', input_shape=img_shape))
     model.add(BatchNormalization())
+    model.add(Activation(relu)) 
     model.add(Dropout(0.3))
     
-    model.add(Conv2D(64, 3, padding='same', activation='relu'))
+    model.add(Conv2D(64, 3, padding='same'))
     model.add(BatchNormalization())
+    model.add(Activation(relu))
     model.add(Dropout(0.3))
     
-    model.add(Conv2D(128, 3, padding='same', activation='relu'))
+    model.add(Conv2D(128, 3, padding='same'))
     model.add(BatchNormalization())
+    model.add(Activation(relu))
     model.add(Dropout(0.3))
     
     model.add(Flatten())
@@ -77,11 +86,11 @@ def display_images(generator, latent_dimensions):
         # generated_images = 0.5 * generated_images + 0.5
         
         # Transforming generated images in grayscale
-        generated_images = (generated_images[:,:,:,0] * 0.33 + 
-                            generated_images[:,:,:,1] * 0.33 + 
-                            generated_images[:,:,:,2] * 0.34)
+        # generated_images = (generated_images[:,:,:,0] * 0.33 + 
+        #                     generated_images[:,:,:,1] * 0.33 + 
+        #                     generated_images[:,:,:,2] * 0.34)
         
-        generated_images = generated_images * 255
+        # generated_images = generated_images * 255
   
         fig, axs = plt.subplots(r, c)
         count = 0
@@ -113,7 +122,7 @@ combined_network.compile(optimizer=Adam(0.0002, 0.6), loss='binary_crossentropy'
                          metrics=['accuracy'])
 
 batch_size = 32
-n_epochs = 500
+n_epochs = 10000
 n_display = 100
 
 # Creating valid and fake samples
@@ -142,9 +151,9 @@ for epoch in range(n_epochs):
     if epoch % n_display == 0:  
         display_images(generator, latent_dimensions)
 
-image = generator.predict(np.random.randn(1,latent_dimensions))
-image = image * 255
-image = image.reshape(32,32,3).astype(np.uint8)
-image = Image.fromarray(image)
-image.save('genimage.png')    
+# image = generator.predict(np.random.randn(1,latent_dimensions))
+# image = image * 255
+# image = image.reshape(32,32).astype(np.uint8)
+# image = Image.fromarray(image)
+# image.save('genimage.png')    
 
