@@ -82,20 +82,19 @@ def display_images(generator, latent_dimensions):
         plt.close()
 
 
-# Building and compiling the discriminator
+# Criando e compilando o discriminador
 discriminator = build_discriminator(img_shape)
 discriminator.compile(loss='binary_crossentropy',
                       optimizer=Adam(0.0002,0.5),
                     metrics=['accuracy'])
 
-#Making the Discriminator untrainable
-#so that the generator can learn from fixed gradient
+# Congelando os pesos do discriminador para quando o gerador for treinado
 discriminator.trainable = False
 
-# Building the generator
+# Construindo o gerador
 generator = build_generator(latent_dimensions)
 
-# Creating and compiling the combined model
+# Criando e compilando o modelo combinado
 z_in = Input(shape=(latent_dimensions,))
 z_out = discriminator(generator(z_in))
 combined_network = Model(z_in, z_out)
@@ -108,7 +107,7 @@ display_interval = 50
 batch_size = 32
 losses = []
 
-# Defining the Adversarial Ground Truths
+# Definindo os atributos validos e inválidos
 valid = np.ones((batch_size,1)) - 0.05 * np.random.random((batch_size,1))
 fake = np.zeros((batch_size, 1)) + 0.05 * np.random.random((batch_size, 1))
 
@@ -116,23 +115,23 @@ fake = np.zeros((batch_size, 1)) + 0.05 * np.random.random((batch_size, 1))
 for epoch in range(n_epochs):
     print('Epoch ' + str(epoch) + ':')
     
-    # Sampling a random half of images
+    # Obtendo um batch de imagens reais
     index = np.random.randint(low=0, high=x.shape[0], size=batch_size)
     images = x[index]
 
-    # Sampling noise and generating a batch of new images
+    # Gerando um batch de vetores de números aleatórios
     noise = np.random.randn(batch_size, latent_dimensions)
     generated_images = generator.predict(noise)
 
-    # Training the discriminator
+    # Treinando o discriminador
     disc_loss_real = discriminator.train_on_batch(images, valid)
     disc_loss_fake = discriminator.train_on_batch(generated_images, fake)
     disc_loss = 0.5 * np.add(disc_loss_fake, disc_loss_real)
 
-    # Training the generator
+    # Treinando o gerador
     gen_loss = combined_network.train_on_batch(noise, valid)
     
-    # Printing Images
+    # Printando as imagens
     if epoch % display_interval == 0:
         display_images(generator, latent_dimensions)
 
