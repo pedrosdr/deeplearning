@@ -58,6 +58,7 @@ def build_generator(input_shape, output_size):
     model.add(Activation('relu'))
     
     model.add(Conv2D(1, 3, padding='same'))
+    model.add(BatchNormalization())
     model.add(Activation('relu'))
     
     model.add(Flatten())
