@@ -61,6 +61,7 @@ x = pipex.fit_transform(dfx)
 model = k.models.Sequential([
     k.layers.Input([30]),
     k.layers.Dense(200, activation='sigmoid'),
+    k.layers.Dense(200, activation='sigmoid'),
     k.layers.Dense(1, activation='sigmoid')
 ])
 model.compile('adam', loss='binary_crossentropy', metrics=['binary_accuracy'])
@@ -73,15 +74,21 @@ w1 = np.array(model.weights[0]).flatten()
 b1 = np.array(model.weights[1]).flatten()
 w2 = np.array(model.weights[2]).flatten()
 b2 = np.array(model.weights[3]).flatten()
-sns.histplot(w1, bins=1000)
-sns.histplot(b1, bins=100)
+w3 = np.array(model.weights[4]).flatten()
+b3 = np.array(model.weights[5]).flatten()
+sns.histplot(w1, bins=50)
+sns.histplot(b1, bins=50)
 sns.histplot(w2, bins=50)
 sns.histplot(b2, bins=50)
 
 model2 = k.models.Sequential([
     k.layers.Input([30]),
     k.layers.Dense(
-        200, 
+        5000, 
+        activation='sigmoid'
+    ),
+    k.layers.Dense(
+        5000, 
         activation='sigmoid'
     ),
     k.layers.Dense(
@@ -90,6 +97,12 @@ model2 = k.models.Sequential([
     )
 ])
 model2.compile('adam', loss='binary_crossentropy', metrics=['binary_accuracy'])
+
+loss1 = []
+for epoch in range(100):
+    loss = model2.train_on_batch(xtrain, ytrain)
+    print(loss[0], epoch)
+    loss1.append(loss)
 
 
 model2 = k.models.Sequential([
@@ -112,20 +125,32 @@ model2.compile('adam', loss='binary_crossentropy', metrics=['binary_accuracy'])
 model2 = k.models.Sequential([
     k.layers.Input([30]),
     k.layers.Dense(
-        5000, 
+        2000, 
         activation='sigmoid',
         kernel_initializer=RandomFromArray(w1),
         bias_initializer=RandomFromArray(b1)
     ),
     k.layers.Dense(
-        1, 
+        2000, 
         activation='sigmoid',
         kernel_initializer=RandomFromArray(w2),
         bias_initializer=RandomFromArray(b2)
+    ),
+    k.layers.Dense(
+        1, 
+        activation='sigmoid',
+        kernel_initializer=RandomFromArray(w3),
+        bias_initializer=RandomFromArray(b3)
     )
 ])
 model2.compile('adam', loss='binary_crossentropy', metrics=['binary_accuracy'])
-model2.fit(dfx, dfy, 200, 100)
+
+loss2 = []
+for epoch in range(100):
+    loss = model2.train_on_batch(xtrain, ytrain)
+    print(loss[0], epoch)
+    loss1.append(loss)
+
 
 sns.histplot(np.array(model2.weights[0]).flatten(), bins=100)
 sns.histplot(np.array(model2.weights[2]).flatten(), bins=50)
