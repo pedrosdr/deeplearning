@@ -7,7 +7,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 import tensorflow as tf
-
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.preprocessing import MinMaxScaler
+    
 def random_plateau(size, bins=10000, deg=1):
     x = np.linspace(-10, 10, num=bins)
     fx = (1.0/(np.sqrt(2.0*np.pi)))*np.exp(-deg*np.square(x))
@@ -66,7 +68,7 @@ model = k.models.Sequential([
 ])
 model.compile('adam', loss='binary_crossentropy', metrics=['binary_accuracy'])
 
-model.fit(dfx, dfy, 200, 1000)
+model.fit(dfx, dfy, 200, 500)
 ypred = [1 if x > 0.5 else 0 for x in model.predict(xtest)]
 print(confusion_matrix(ytest, ypred))
 
@@ -98,11 +100,11 @@ model2 = k.models.Sequential([
 ])
 model2.compile('adam', loss='binary_crossentropy', metrics=['binary_accuracy'])
 
-loss1 = []
-for epoch in range(100):
-    loss = model2.train_on_batch(xtrain, ytrain)
-    print(loss[0], epoch)
-    loss1.append(loss)
+# loss1 = []
+# for epoch in range(100):
+#     loss = model2.train_on_batch(xtrain, ytrain)
+#     print(loss[0], epoch)
+#     loss1.append(loss)
 
 
 model2 = k.models.Sequential([
@@ -145,11 +147,11 @@ model2 = k.models.Sequential([
 ])
 model2.compile('adam', loss='binary_crossentropy', metrics=['binary_accuracy'])
 
-loss2 = []
-for epoch in range(100):
-    loss = model2.train_on_batch(xtrain, ytrain)
-    print(loss[0], epoch)
-    loss1.append(loss)
+# loss2 = []
+# for epoch in range(100):
+#     loss = model2.train_on_batch(xtrain, ytrain)
+#     print(loss[0], epoch)
+#     loss1.append(loss)
 
 
 sns.histplot(np.array(model2.weights[0]).flatten(), bins=100)
@@ -161,3 +163,103 @@ print(confusion_matrix(ytest, ypred))
 sns.heatmap(model.weights[0])
 sns.heatmap(model2.weights[0])
 model.weights
+
+model2 = k.models.Sequential([
+    k.layers.Input([30]),
+    k.layers.Dense(
+        5000, 
+        activation='sigmoid'
+    ),
+    k.layers.Dense(
+        5000, 
+        activation='sigmoid'
+    ),
+    k.layers.Dense(
+        1, 
+        activation='sigmoid'
+    )
+])
+
+# Testando a interpolação por KNN
+y1 = w1.flatten().reshape(-1,1)
+x1 = MinMaxScaler().fit_transform(np.arange(stop=y1.shape[0]).reshape(-1,1))
+a = len(np.array(model2.weights[0]).flatten())
+xpred1 = MinMaxScaler().fit_transform(np.arange(stop=a).reshape(-1,1))
+knn = KNeighborsRegressor(n_neighbors=2).fit(x1, y1)
+ypred1 = knn.predict(xpred1)
+
+# sns.histplot(ypred1, bins=50)
+
+ypred1 = tf.convert_to_tensor(ypred1.reshape(np.array(model2.weights[0]).shape),dtype=tf.float32)
+model2.weights[0] = ypred1
+
+# Testando a interpolação por KNN
+y1 = b1.flatten().reshape(-1,1)
+x1 = MinMaxScaler().fit_transform(np.arange(stop=y1.shape[0]).reshape(-1,1))
+a = len(np.array(model2.weights[1]).flatten())
+xpred1 = MinMaxScaler().fit_transform(np.arange(stop=a).reshape(-1,1))
+knn = KNeighborsRegressor(n_neighbors=2).fit(x1, y1)
+ypred1 = knn.predict(xpred1)
+
+# sns.histplot(ypred1, bins=50)
+
+ypred1 = tf.convert_to_tensor(ypred1.reshape(np.array(model2.weights[1]).shape),dtype=tf.float32)
+model2.weights[1] = ypred1
+
+
+# Testando a interpolação por KNN
+y1 = w2.flatten().reshape(-1,1)
+x1 = MinMaxScaler().fit_transform(np.arange(stop=y1.shape[0]).reshape(-1,1))
+a = len(np.array(model2.weights[2]).flatten())
+xpred1 = MinMaxScaler().fit_transform(np.arange(stop=a).reshape(-1,1))
+knn = KNeighborsRegressor(n_neighbors=2).fit(x1, y1)
+ypred1 = knn.predict(xpred1)
+
+# sns.histplot(ypred1, bins=50)
+
+ypred1 = tf.convert_to_tensor(ypred1.reshape(np.array(model2.weights[2]).shape),dtype=tf.float32)
+model2.weights[2] = ypred1
+
+# Testando a interpolação por KNN
+y1 = b2.flatten().reshape(-1,1)
+x1 = MinMaxScaler().fit_transform(np.arange(stop=y1.shape[0]).reshape(-1,1))
+a = len(np.array(model2.weights[3]).flatten())
+xpred1 = MinMaxScaler().fit_transform(np.arange(stop=a).reshape(-1,1))
+knn = KNeighborsRegressor(n_neighbors=2).fit(x1, y1)
+ypred1 = knn.predict(xpred1)
+
+# sns.histplot(ypred1, bins=50)
+
+ypred1 = tf.convert_to_tensor(ypred1.reshape(np.array(model2.weights[3]).shape),dtype=tf.float32)
+model2.weights[3] = ypred1
+
+# Testando a interpolação por KNN
+y1 = w3.flatten().reshape(-1,1)
+x1 = MinMaxScaler().fit_transform(np.arange(stop=y1.shape[0]).reshape(-1,1))
+a = len(np.array(model2.weights[4]).flatten())
+xpred1 = MinMaxScaler().fit_transform(np.arange(stop=a).reshape(-1,1))
+knn = KNeighborsRegressor(n_neighbors=2).fit(x1, y1)
+ypred1 = knn.predict(xpred1)
+
+# sns.histplot(ypred1, bins=50)
+
+ypred1 = tf.convert_to_tensor(ypred1.reshape(np.array(model2.weights[4]).shape),dtype=tf.float32)
+model2.weights[4] = ypred1
+
+# Testando a interpolação por KNN
+y1 = b3.flatten().reshape(-1,1)
+x1 = MinMaxScaler().fit_transform(np.arange(stop=y1.shape[0]).reshape(-1,1))
+a = len(np.array(model2.weights[5]).flatten())
+xpred1 = MinMaxScaler().fit_transform(np.arange(stop=a).reshape(-1,1))
+knn = KNeighborsRegressor(n_neighbors=1).fit(x1, y1)
+ypred1 = knn.predict(xpred1)
+
+# sns.histplot(ypred1, bins=50)
+
+ypred1 = tf.convert_to_tensor(ypred1.reshape(np.array(model2.weights[5]).shape),dtype=tf.float32)
+model2.weights[5] = ypred1
+
+model2.compile('adam', loss='binary_crossentropy', metrics=['binary_accuracy'])
+model2.fit(dfx, dfy, epochs=10)
+ypred = [1 if x > 0.5 else 0 for x in model2.predict(xtest)]
+print(confusion_matrix(ytest, ypred))
